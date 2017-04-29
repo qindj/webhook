@@ -376,6 +376,7 @@ type Hook struct {
 	ResponseMessage                     string          `json:"response-message,omitempty"`
 	ResponseHeaders                     ResponseHeaders `json:"response-headers,omitempty"`
 	CaptureCommandOutput                bool            `json:"include-command-output-in-response,omitempty"`
+	CommandAsParameter					bool			`json:"use-execute-command-as-parameter,omitempty"`
 	PassEnvironmentToCommand            []Argument      `json:"pass-environment-to-command,omitempty"`
 	PassArgumentsToCommand              []Argument      `json:"pass-arguments-to-command,omitempty"`
 	JSONStringParameters                []Argument      `json:"parse-parameters-as-json,omitempty"`
@@ -441,8 +442,9 @@ func (h *Hook) ParseJSONParameters(headers, query, payload *map[string]interface
 func (h *Hook) ExtractCommandArguments(headers, query, payload *map[string]interface{}) ([]string, []error) {
 	var args = make([]string, 0)
 	var errors = make([]error, 0)
-
-	args = append(args, h.ExecuteCommand)
+	if h.CommandAsParameter {
+		args = append(args, h.ExecuteCommand)
+	}
 
 	for i := range h.PassArgumentsToCommand {
 		if arg, ok := h.PassArgumentsToCommand[i].Get(headers, query, payload); ok {
